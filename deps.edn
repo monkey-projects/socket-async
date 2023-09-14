@@ -1,0 +1,21 @@
+{:deps {org.clojure/core.async {:mvn/version "1.6.681"}
+        org.clojure/tools.logging {:mvn/version "1.2.4"}}
+
+ :aliases
+ {:dev
+  {:extra-deps {ch.qos.logback/logback-classic {:mvn/version "1.4.11"}}}
+
+  :test
+  {:extra-deps {com.monkeyprojects/build {:mvn/version "0.1.1"}}
+   :extra-paths ["test"]
+   :exec-fn monkey.test/all}
+
+  :watch
+  {:exec-fn monkey.test/watch}
+
+  :junit
+  {:exec-fn monkey.test/junit}
+
+  :coverage
+  {:exec-fn monkey.test/coverage
+   :exec-args {:ns-regex ["monkey.socket-async.*"]}}}}
