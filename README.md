@@ -24,16 +24,17 @@ Include it in your project:
 {:deps {com.monkeyprojects/socket-async {:mvn/version "..latest.."}}}
 
 # Or project.clj
-[com.monkeyprojects/socket-asybnc "..latest"]
+[com.monkeyprojects/socket-asybnc "..latest.."]
 ```
 
 The core functionality is in `monkey.socket-async.core`.  There are also some
 helper functions for UDS in `monkey.socket-async.uds`, but you could also directly
-use the [Java classes](https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/nio/channels/package-summary.html).  You also need `core.async` channels, of course.  The two "work horses"
-are `read-onto-channel` and `write-from-channel`.  The former reads `EDN` from a
-`SocketChannel` and puts the decoded objects onto a channel.  The latter does the
-opposite, it reads objects from a channel, encodes them as `EDN` and writes that
-string to the socket channel.  For example:
+use the [Java classes](https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/nio/channels/package-summary.html).  You also need `core.async` channels, of course.
+
+The two "work horses" are `read-onto-channel` and `write-from-channel`.  The former
+reads `EDN` from a `SocketChannel` and puts the decoded objects onto a channel.
+The latter does the opposite, it reads objects from a channel, encodes them as `EDN`
+and writes that string to the socket channel.  For example:
 
 ```clojure
 (require '[monkey.socket-async.core :as c])
@@ -46,7 +47,7 @@ string to the socket channel.  For example:
 (def client (uds/connect-socket addr))  ; Connect to the server
 (def server (uds/accept listener) ; Accept incoming connection
 
-;; At this point you have to socket channels, client and server
+;; At this point you have two socket channels, client and server
 ;; that are connected to each other.
 
 (require '[clojure.core.async :as ca :refer [go >!]])
@@ -80,4 +81,5 @@ the serialization method (e.g. use `JSON` instead).
 ## License
 
 Copyright (c) 2023 by Monkey Projects
+
 [MIT license](LICENSE)
