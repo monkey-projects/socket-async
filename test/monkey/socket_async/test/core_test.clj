@@ -27,6 +27,13 @@
         (uds/close server)
         (uds/delete-address path)))))
 
+(defn- read-or-timeout [ch & [timeout]]
+  (let [t (ca/timeout (or timeout 1000))
+        [v p] (ca/alts!! [ch t])]
+    (if (= ch p)
+      v
+      :timeout)))
+
 (deftest read-and-write
   (testing "can send objects between channels using socket"
     (with-sockets
@@ -37,9 +44,27 @@
           (is (some? (sut/read-onto-channel server in)))
           (is (some? (sut/write-from-channel out client)))
           (is (true? (ca/>!! out obj)))
-          (let [t (ca/timeout 1000)
-                [v p] (ca/alts!! [in t])]
-            (is (= in p) "did not expect timeout")
+          (let [v (read-or-timeout in)]
+            (is (not= :timeout v) "did not expect timeout")
             (is (= obj v)) "did not receive the object sent")
           (ca/close! in)
-          (ca/close! out))))))
+          (ca/close! out)))))
+
+  (testing "stops reading when connection closes"
+    (with-sockets
+      (fn [{:keys [client server]}]
+        (let [in (ca/chan)
+              r (sut/read-onto-channel server in)]
+          (is (some? r))
+          (uds/close client)
+          (is (nil? (read-or-timeout r)))))))
+
+  (testing "stops writing when connection closes"
+    (with-sockets
+      (fn [{:keys [client server]}]
+        (let [out (ca/chan)
+              r (sut/write-from-channel out client)]
+          (is (some? r))
+          (uds/close client)
+          (go (>! out {:key "test value"}))
+          (is (nil? (read-or-timeout r))))))))

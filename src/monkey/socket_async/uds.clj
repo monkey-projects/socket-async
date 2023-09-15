@@ -5,20 +5,30 @@
 
 (def unix-proto StandardProtocolFamily/UNIX)
 
-(defn make-address [path]
+(defn make-address
+  "Creates a UDS address at given path.  The file must not exist yet."
+  [path]
   (UnixDomainSocketAddress/of path))
 
-(defn delete-address [path]
+(defn delete-address
+  "Deletes the socket file at `path`."
+  [path]
   (.delete (java.io.File. path)))
 
-(defn connect-socket [addr]
+(defn connect-socket
+  "Opens a client socket on `addr`"
+  [addr]
   (SocketChannel/open addr))
 
-(defn open-socket [addr]
+(defn open-socket
+  "Creates a client socket that binds to `addr`."
+  [addr]
   (.. (SocketChannel/open unix-proto)
       (bind addr)))
 
-(defn listen-socket [addr]
+(defn listen-socket
+  "Creates a listening socket that binds to `addr`"
+  [addr]
   (.. (ServerSocketChannel/open unix-proto)
       (bind addr)))
 
@@ -26,6 +36,8 @@
 
 (def connected? (memfn ^SocketChannel isConnected))
 
-(defn close [s]
+(defn close
+  "Closes the socket channel, if non `nil`"
+  [s]
   (when s
     (.close s)))
